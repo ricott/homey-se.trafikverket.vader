@@ -4,7 +4,8 @@
         "msg1": "Either search for a station by name below, or leave the field empty and stations close (20km) to your Homeys location will be displayed.",
         "msg2": "The field below is a search field and you only need to type the beginning of the station name.",
         "station": "Station name",
-        "button": "Next >"
+        "button": "Next >",
+        "error": "Could not reach Trafikverket. Please check your internet connection and try again."
     },
     "wind": {
         "E": "East",

@@ -4,7 +4,8 @@
         "msg1": "Antingen använder du sökfältet nedan för att söka fram en station, eller så lämnar du fältet tomt och då kommer väderstationer som är nära (inom 20km) från din Homey att visas.",
         "msg2": "Fältet nedan är ett sökfält, du behöver bara ange början av det du vill söka på.",
         "station": "Stationsnamn",
-        "button": "Nästa >"
+        "button": "Nästa >",
+        "error": "Kunde inte nå Trafikverket. Kontrollera din internetanslutning och försök igen."
     },
     "wind": {
         "E": "Öst",

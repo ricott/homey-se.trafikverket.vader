@@ -1,12 +1,12 @@
 {
   "id": "se.trafikverket.vader",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "compatibility": ">=12.9.0",
   "sdk": 3,
   "brandColor": "#d52b1e",
   "name": {
     "en": "Swedish Trafikverket weather",
-    "sv": "Trafikverket väderinformation "
+    "sv": "Trafikverket väderinformation"
   },
   "tags": {
     "en": [
@@ -18,7 +18,7 @@
       "wind",
       "sweden"
     ],
-    "se": [
+    "sv": [
       "trafikverket",
       "vvis",
       "vägväder",

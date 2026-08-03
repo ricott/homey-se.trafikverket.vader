@@ -1,7 +1,7 @@
 {
     "name": {
         "en": "Weather station",
-        "se": "Väderstation"
+        "sv": "Väderstation"
     },
     "class": "service",
     "images": {
@@ -34,19 +34,19 @@
         "measure_rain.snow": {
             "title": {
                 "en": "Snow",
-                "se": "Snö"
+                "sv": "Snö"
             }
         },
         "measure_rain.total": {
             "title": {
                 "en": "Total water equivalent",
-                "se": "Total vattenekvivalent"
+                "sv": "Total vattenekvivalent"
             }
         },
         "measure_temperature.surface": {
             "title": {
                 "en": "Road Surface",
-                "se": "Vägyta"
+                "sv": "Vägyta"
             }
         }
     },

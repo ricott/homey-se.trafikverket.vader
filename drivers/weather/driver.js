@@ -3,107 +3,105 @@
 const Homey = require('homey');
 const Trafikverket = require('../../lib/tv_api.js');
 
+/** Radius used when listing stations near Homey's own location. */
+const NEARBY_SEARCH_RADIUS = '20000m';
+
 class WeatherDriver extends Homey.Driver {
 
     async onInit() {
         this.log('Trafikverket weather driver has been initialized');
 
-        this._registerFlows();
+        this.#registerFlows();
     }
 
-    _registerFlows() {
+    #registerFlows() {
         this.log('Registering flows');
 
-        this._snowChanged = this.homey.flow.getDeviceTriggerCard('snowChanged');
+        this.snowChangedTrigger = this.homey.flow.getDeviceTriggerCard('snowChanged');
 
-        //Conditions
-        const rainAmount = this.homey.flow.getConditionCard('rainAmount');
-        rainAmount.registerRunListener(async (args, state) => {
-            this.log(`[${args.device.getName()}] Condition 'rainAmount' triggered`);
-            const rain = args.device.getCapabilityValue('measure_rain');
-            this.log(`[${args.device.getName()}] - inverter.measure_rain: '${rain}'`);
-            this.log(`[${args.device.getName()}] - parameter rain: '${args.rain}'`);
+        this.homey.flow.getConditionCard('rainAmount')
+            .registerRunListener(async (args) => {
+                const rain = args.device.getCapabilityValue('measure_rain');
+                this.log(`[${args.device.getName()}] Condition 'rainAmount': ${rain} > ${args.rain}?`);
+                return rain > args.rain;
+            });
 
-            if (rain > args.rain) {
-                return true;
-            } else {
-                return false;
-            }
-        });
-
-        const snowAmount = this.homey.flow.getConditionCard('snowAmount');
-        snowAmount.registerRunListener(async (args, state) => {
-            this.log(`[${args.device.getName()}] Condition 'snowAmount' triggered`);
-            const snow = args.device.getCapabilityValue('measure_rain.snow');
-            this.log(`[${args.device.getName()}] - inverter.measure_rain.snow: '${snow}'`);
-            this.log(`[${args.device.getName()}] - parameter snow: '${args.snow}'`);
-
-            if (snow > args.snow) {
-                return true;
-            } else {
-                return false;
-            }
-        });
-
+        this.homey.flow.getConditionCard('snowAmount')
+            .registerRunListener(async (args) => {
+                const snow = args.device.getCapabilityValue('measure_rain.snow');
+                this.log(`[${args.device.getName()}] Condition 'snowAmount': ${snow} > ${args.snow}?`);
+                return snow > args.snow;
+            });
     }
 
+    /**
+     * @param {import('homey').Device} device
+     * @param {object} tokens
+     */
     async triggerSnowChanged(device, tokens) {
-        await this._snowChanged.trigger(device, {}, tokens).catch(error => { this.error(error) });
+        try {
+            await this.snowChangedTrigger.trigger(device, {}, tokens);
+        } catch (error) {
+            this.error("Failed to trigger 'snowChanged':", error);
+        }
     }
 
+    /**
+     * @param {import('homey').Driver.PairSession} session
+     */
     async onPair(session) {
+        // Scoped to this pair session rather than the driver, so concurrent
+        // pairing sessions can't overwrite each other's search term.
+        let stationName = null;
+
         session.setHandler('settings', async (data) => {
-            if (data.stationName) {
-                this.log(`User wants to search for '${data.stationName}'`);
-                this.stationName = data.stationName;
+            stationName = data?.stationName?.trim() || null;
+
+            if (stationName) {
+                this.log(`User wants to search for '${stationName}'`);
             } else {
                 this.log('User decided to search for stations nearby Homey location');
             }
+
             await session.showView('list_devices');
             return 'done';
         });
 
-        session.setHandler('list_devices', async (data) => {
-            const devices = [];
-            const TV = new Trafikverket({ token: Homey.env.API_KEY });
+        session.setHandler('list_devices', async () => {
+            // See the note in device.js: env.json is only exposed as `Homey.env`.
+            const api = new Trafikverket({ token: Homey.env.API_KEY });
 
             try {
-                let response;
-
-                if (this.stationName) {
-                    this.log(`Searching for a specific station by name '${this.stationName}'`);
-                    response = await TV.getWeatherStationsByName(this.stationName);
-                    // Reset station name
-                    this.stationName = null;
-                } else {
-                    this.log('Searching for stations nearby Homey location');
-                    response = await TV.getWeatherStationsByLocation(
+                const response = stationName
+                    ? await api.getWeatherStationsByName(stationName)
+                    : await api.getWeatherStationsByLocation(
                         this.homey.geolocation.getLatitude(),
                         this.homey.geolocation.getLongitude(),
-                        '20000m'
+                        NEARBY_SEARCH_RADIUS,
                     );
-                }
 
-                if (response?.RESPONSE?.RESULT?.[0]?.WeatherMeasurepoint) {
-                    response.RESPONSE.RESULT[0].WeatherMeasurepoint.forEach(station => {
-                        devices.push({
-                            name: station.Name,
-                            data: {
-                                id: station.Id
-                            }
-                        });
-                    });
-                } else {
+                const stations = response?.RESPONSE?.RESULT?.[0]?.WeatherMeasurepoint;
+
+                if (!Array.isArray(stations) || stations.length === 0) {
                     this.log('No weather stations received in API response');
+                    return [];
                 }
 
-                return devices;
+                return stations.map((station) => ({
+                    name: station.Name,
+                    data: { id: station.Id },
+                }));
             } catch (error) {
                 this.error('Failed to get weather stations:', error);
-                return [];
+                // Surfaces as an error in the pairing wizard instead of an
+                // empty list that looks like "no stations found".
+                throw new Error(this.homey.__('pair.error'), { cause: error });
+            } finally {
+                api.removeAllListeners();
             }
         });
     }
 
 }
+
 module.exports = WeatherDriver;

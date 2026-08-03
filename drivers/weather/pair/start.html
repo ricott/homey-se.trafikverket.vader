@@ -1,38 +1,62 @@
 <!doctype html>
-<html>
+<html lang="en">
 
 <head>
-    <script type="text/javascript">
-        Homey.setTitle(__('pair.title'));
-        $(function () {
-            $('#next').click(function () {
-                var stationName = $('#stationName').val();
-                var settings = {
-                    stationName: stationName
-                };
-                Homey.emit('settings', settings).then(function (result) {
-                    console.log(result);
-                });
-            });
-        })
-    </script>
+    <meta charset="utf-8">
 </head>
 
 <body>
     <p data-i18n="pair.msg1"></p>
-    <br/>
+    <br>
     <p data-i18n="pair.msg2"></p>
-    <br/><br/>
+    <br><br>
     <div>
         <div>
             <label for="stationName" data-i18n="pair.station"></label>
-            <input type="text" id="stationName">
+            <input type="text" id="stationName" autocomplete="off" autocapitalize="words" enterkeyhint="next">
         </div>
-        <div><br/></div>
+        <div><br></div>
         <div>
-            <button id="next" class="button" data-i18n="pair.button"></button>
+            <button id="next" class="button" type="button" data-i18n="pair.button"></button>
         </div>
     </div>
+
+    <script type="application/javascript">
+        Homey.setTitle(Homey.__('pair.title'));
+
+        const input = document.getElementById('stationName');
+        const nextButton = document.getElementById('next');
+
+        let submitting = false;
+
+        async function submit() {
+            // Guard against double submits from Enter plus click.
+            if (submitting) {
+                return;
+            }
+            submitting = true;
+            nextButton.disabled = true;
+
+            try {
+                await Homey.emit('settings', { stationName: input.value });
+            } catch (error) {
+                submitting = false;
+                nextButton.disabled = false;
+                await Homey.alert(error.message || String(error), 'error');
+            }
+        }
+
+        nextButton.addEventListener('click', submit);
+
+        input.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                submit();
+            }
+        });
+
+        input.focus();
+    </script>
 </body>
 
 </html>

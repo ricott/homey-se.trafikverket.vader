@@ -7,3 +7,5 @@ README.*
 # Development files
 .gitignore
 .github/
+
+eslint.config.mjs
