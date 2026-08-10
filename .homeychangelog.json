@@ -1,4 +1,8 @@
 {
+    "1.0.8": {
+        "en": "Corrected spelling and wording in the English texts.",
+        "sv": "Rättat stavning och formuleringar i de engelska texterna."
+    },
     "1.0.7": {
         "en": "Snow and total precipitation are now added correctly to existing weather stations. Stations without a road surface sensor no longer report 0 degrees. A changed refresh interval now applies immediately, without restarting the app. Swedish texts are shown correctly, and searching for a station name with an apostrophe works.",
         "sv": "Snö och total nedbörd läggs nu till korrekt på befintliga väderstationer. Stationer utan vägytesensor rapporterar inte längre 0 grader. Ett ändrat uppdateringsintervall börjar gälla direkt, utan att appen startas om. Svenska texter visas korrekt och det går att söka på stationsnamn med apostrof."

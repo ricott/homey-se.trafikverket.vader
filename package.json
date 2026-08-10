@@ -1,6 +1,6 @@
 {
   "name": "se.trafikverket.vader",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "Homey app exposing weather data from Swedish Trafikverket's road weather stations (VViS)",
   "main": "app.js",
   "private": true,

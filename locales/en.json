@@ -1,7 +1,7 @@
 {
     "pair": {
         "title": "Add weather station",
-        "msg1": "Either search for a station by name below, or leave the field empty and stations close (20km) to your Homeys location will be displayed.",
+        "msg1": "Either search for a station by name below, or leave the field empty to see stations within 20 km of your Homey's location.",
         "msg2": "The field below is a search field and you only need to type the beginning of the station name.",
         "station": "Station name",
         "button": "Next >",
@@ -15,7 +15,7 @@
         "N": "North",
         "NNE": "North, northeast",
         "NNW": "North, northwest",
-        "NW": "Nortwest",
+        "NW": "Northwest",
         "S": "South",
         "SE": "Southeast",
         "SSW": "South, southwest",
